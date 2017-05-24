@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Stick Gym</title>
+
+<style type="text/css">
+body
+{
+	margin:0;
+	background-color:white;
+	/*text-align:center;*/
+	font-family:sans-serif;
+}
+</style>
+
+<script type="text/javascript">
+
+var canvas;
+var currentFrame = 0;
+var wait         = 0;
+
+var json = 
+{
+	"cuerpo":{
+			"x":360,
+			"y":240,
+			"neck":0,
+			"leftarm":-30,
+			"rightarm":30,
+			"lefthand":10,
+			"righthand":-10,
+			"leftleg":-30,
+			"rightleg":30,
+			"leftfoot":10,
+			"rightfoot":-10,
+			"second":0
+		}
+}
+
+//Funcion que repite una accion un numero de veces, cada x intervalo de tiempo.
+function repetir_num_seg(num,time,fx)
+{
+	var idtime = setInterval(function()
+		     {
+			fx();
+
+			num--;
+
+			if (num ==0) clearInterval(idtime);
+
+		     },time);
+}
+
+
+function control(parte,valor,f)
+{
+	valor = -(valor *f);
+	switch (parte)
+	{
+		case "la": json.cuerpo.leftarm    = json.cuerpo.leftarm   + valor;
+			   break;
+		case "lh": json.cuerpo.lefthand   = json.cuerpo.lefthand  + valor;
+			   break;
+		case "ll": json.cuerpo.leftleg    = json.cuerpo.leftleg   + valor;
+			   break;
+		case "lf": json.cuerpo.leftfoot   = json.cuerpo.leftfoot + valor;
+			   break;
+		case "ra": json.cuerpo.rightarm   = json.cuerpo.rightarm  + (-valor);
+			   break;
+		case "rh": json.cuerpo.righthand  = json.cuerpo.righthand + (-valor);
+			   break;
+		case "rl": json.cuerpo.rightleg   = json.cuerpo.rightleg  + (-valor);
+			   break;
+		case "rf": json.cuerpo.rightfoot  = json.cuerpo.rightfoot + (-valor);
+			   break;
+		case "x" : json.cuerpo.x          = json.cuerpo.x         + (-valor);
+			   break;
+		case "y" : json.cuerpo.y          = json.cuerpo.y         + (-valor);
+			   break;
+	}
+
+	updateAll();
+}
+
+
+function recorrerArbol(arbol,tmp,end)
+{
+
+	for (var i=0; i<arbol.length; i++)
+	if (typeof arbol[i].hijos=="undefined")
+	{
+		wait = wait + (parseInt(arbol[i].rot) *2.5);
+		(function(c){repetir_num_seg(c.rot,8,function(){control(c.parte,c.mov,2);});})(arbol[i]);
+	}
+	else resultado = recorrerArbol(arbol[i].hijos,1,null);
+
+	if (tmp==0)
+	{
+		setTimeout(end,wait);
+		wait = 0;
+	}
+}
+
+var up_arm  = [{"hijos":[{"parte":"la","rot":"35","mov": "1"},{"parte":"lh","rot":"15","mov": "1"}]},{"hijos":[{"parte":"ra","rot":"35","mov":"1"} ,{"parte":"rh","rot":"15","mov": "1"}]}];
+var dwn_arm = [{"hijos":[{"parte":"la","rot":"35","mov":"-1"},{"parte":"lh","rot":"15","mov":"-1"}]},{"hijos":[{"parte":"ra","rot":"35","mov":"-1"},{"parte":"rh","rot":"15","mov":"-1"}]}];
+
+var jump_1  = [{"hijos":[{"parte":"y","rot":"18","mov":"-1"},{"parte":"x","rot":"18","mov":"-1"},{"parte":"la","rot":"18","mov":"1"},{"parte":"lh","rot":"50","mov":"1"},{"parte":"ra","rot":"18","mov":"1"},{"parte":"rh","rot":"50","mov":"1"},{"parte":"rl","rot":"30","mov":"1"},{"parte":"rf","rot":"30","mov":"-1"},{"parte":"ll","rot":"30","mov":"1"},{"parte":"lf","rot":"30","mov":"-1"}]}];
+var jump_2  = [{"hijos":[{"parte":"y","rot":"18","mov":"1"},{"parte":"la","rot":"18","mov":"-1"},{"parte":"lh","rot":"50","mov":"-1"},{"parte":"ra","rot":"18","mov":"-1"},{"parte":"rh","rot":"50","mov":"-1"},{"parte":"rl","rot":"30","mov":"-1"},{"parte":"rf","rot":"30","mov":"1"},{"parte":"ll","rot":"30","mov":"-1"},{"parte":"lf","rot":"30","mov":"1"}]}];
+
+var kick_1  = [{"hijos":[{"parte":"rh","rot":"30","mov":"-1"},{"parte":"lh","rot":"30","mov": "1"},{"parte":"ll","rot":"75","mov": "1"},{"parte":"lf","rot":"10","mov": "1"}]}];
+var kick_2  = [{"hijos":[{"parte":"rh","rot":"30","mov": "1"},{"parte":"lh","rot":"30","mov":"-1"},{"parte":"ll","rot":"75","mov":"-1"},{"parte":"lf","rot":"10","mov":"-1"}]}];
+
+function arms()
+{
+	recorrerArbol(up_arm,0,function(){recorrerArbol(dwn_arm,0,null)});
+}
+
+function kick()
+{
+	recorrerArbol(kick_1,0,function(){recorrerArbol(kick_2,0,null)});
+}
+
+function jump()
+{
+	recorrerArbol(jump_1,0,function(){recorrerArbol(jump_2,0,null)});
+}
+
+function room(context)
+{
+
+      context.beginPath();
+      context.moveTo(10, 355);
+      context.lineTo(710, 355);
+      context.stroke();
+
+      context.strokeStyle="black";
+      var x = 30;
+      var y = 80;      
+
+      //Logo del gym		
+      context.font="16pt sans-serif";
+      context.fillText("Stick JS"  , x, y);
+      context.strokeText("Stick JS", x, y);
+
+      context.font="13pt sans-serif";
+      context.fillText("By Damian Cipolat"  , x, y+25);
+      context.fillText("Keys '0' Arms - '1' Kick - '2' Jump"  , x, y+305);
+}
+
+function draw(context, stickfigure)
+{
+	//Dibuja el gym
+	room(context);
+
+	context.strokeStyle = "black";
+	context.lineWidth   = 9;
+	context.lineCap     = "round";
+	
+	//Ubicacion.
+	context.translate(stickfigure.x, stickfigure.y);
+
+	context.beginPath();
+
+	context.moveTo(0,0);
+	context.save();
+
+
+	//pierna izq
+	context.rotate(((stickfigure.leftleg) / 360) * (Math.PI * 2));
+	context.lineTo(0, 60);
+	context.translate(0,60);
+
+	//pie izq
+	context.rotate(((stickfigure.leftfoot) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.restore();
+	context.save();
+
+	//Pierna der
+	context.moveTo(0,0);
+	context.rotate(((stickfigure.rightleg) / 360) * (Math.PI * 2));
+	context.lineTo(0, 60);
+	context.translate(0,60);
+
+	//pie der
+	context.rotate(((stickfigure.rightfoot) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.restore();
+	
+
+	//Espalda
+	context.moveTo(0,0);
+	context.rotate(((stickfigure.neck) / 360) * (Math.PI * 2));
+	context.lineTo(0, -100);
+	context.translate(0, -100);
+
+	//Cabeza
+	context.moveTo(20,-20);
+	context.arc(0, -30, 30, 0, Math.PI*2, true);
+
+	//Brazo derecho
+	context.moveTo(0,5);
+	context.save();
+	context.rotate(((stickfigure.rightarm) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.translate(0,60);
+
+	//mano derecha
+	context.rotate(((stickfigure.righthand) / 360) * (Math.PI * 2));
+	context.lineTo(0,45);
+	context.restore();
+
+	//Brazo izq
+	context.moveTo(0,5);
+	context.rotate(((stickfigure.leftarm) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+
+	//Mano izq
+	context.translate(0,60);
+	context.rotate(((stickfigure.lefthand) / 360) * (Math.PI * 2));
+	context.lineTo(0,45);
+	context.restore();
+	context.stroke();
+}
+
+function init()
+{
+	//currentMan = json.frames[0].clone();
+	canvas     = document.getElementById("ctx");
+	updateAll();
+};
+
+function updateAll()
+{
+	canvas.width = canvas.width;
+	draw(canvas.getContext("2d"), json.cuerpo);
+}
+
+function stand()
+{	wait = 0;
+	json.cuerpo.leftarm  = -30;
+	json.cuerpo.rightarm =  30;	
+	json.cuerpo.lefthand =  10;
+	json.cuerpo.righthand= -10;
+	json.cuerpo.x = 360;
+	json.cuerpo.y = 240;
+	json.cuerpo.leftleg = -30;
+	json.cuerpo.rightleg=  30;
+	json.cuerpo.leftfoot=  10;
+	json.cuerpo.rightfoot= -10;
+
+	updateAll();
+}
+
+
+document.onkeydown = function (event)
+		     {
+			var keycode = (window.event||event).keyCode;
+
+			switch(keycode)
+			{
+				case 48: case 96: arms();
+				break;
+				case 49: case 97: kick();
+				break;
+				case 50: case 98: jump();
+				break;
+				case 51: case 99: stand();
+				break;
+				case 52: case 100:// inclinar_der();
+				break;
+				case 53: case 101: //inclinar_izq();
+				break;
+				case 54: case 102: //rodilla_izq();
+				break;
+				case 55: case 103:// rodilla_der();
+				break;
+			}
+		     }
+
+</script>
+</head>
+<body>
+
+	<canvas id="ctx" width="720" height="480" style="border:1px solid red;">Sorry, your browser doesn't support Canvas</canvas>
+
+	<script type="text/javascript">init()</script>
+</body>
+
+</html>

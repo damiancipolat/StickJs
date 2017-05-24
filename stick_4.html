@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Stick Gym</title>
+
+<style type="text/css">
+body
+{
+	margin:0;
+	background-color:white;
+	/*text-align:center;*/
+	font-family:sans-serif;
+}
+</style>
+
+<script type="text/javascript">
+
+var cv;
+var cf = 0
+var w = 0
+var n45="45"
+var pi = Math.PI
+
+var j = 
+{
+	"la":-30,
+	"ra":30,
+	"lh":10,
+	"rh":-10,
+	"ll":-30,
+	"rl":30,
+	"lf":10,
+	"rf":-10
+}
+
+function rn(n,t,f)
+{
+	var i = setInterval(function(){f();n--;if (n ==0) clearInterval(i)},t)
+}
+
+
+function ct(p,v,f)
+{
+	v = -(v *f);
+	if (p=="la") j.la    = j.la   + v
+	if (p=="lh") j.lh   = j.lh  + v
+	if (p=="ll") j.ll    = j.ll   + v
+	if (p=="lf") j.lf   = j.lf + v
+	if (p=="ra") j.ra   = j.ra  + (-v)
+	if (p=="rh") j.rh  = j.rh + (-v)
+	if (p=="rl") j.rl   = j.rl  + (-v)
+	if (p=="rf") j.rf  = j.rf + (-v)
+
+	u();
+}
+
+
+function rt(a,t,e)
+{
+
+	for (var i=0; i<a.length; i++)
+	if (typeof a[i].ch=="undefined")
+	{
+		w = w + (parseInt(a[i].r) *3);
+		(function(c){rn(c.r,8,function(){ct(c.p,c.m,2);});})(a[i]);
+	}
+	else rt(a[i].ch,1,null);
+
+	if (t==0)
+	{
+		setTimeout(e,w);
+		w = 0;
+	}
+}
+
+var v = [{"ch":[{"p":"la","r":n45,"m": "1"},{"p":"lh","r":n45,"m": "1"}]},{"ch":[{"p":"rl","r":n45,"m":"1"}, {"p":"rf","r":"25","m": "-1"}]}]
+var b = [{"ch":[{"p":"la","r":n45,"m":"-1"},{"p":"lh","r":n45,"m":"-1"}]},{"ch":[{"p":"rl","r":n45,"m":"-1"},{"p":"rf","r":"25","m": "1"}]}]
+var n = [{"ch":[{"p":"ra","r":"55","m": "1"},{"p":"rh","r":n45,"m": "1"}]},{"ch":[{"p":"ll","r":n45,"m":"1"}, {"p":"lf","r":"25","m":"-1"}]}]
+var m = [{"ch":[{"p":"ra","r":"55","m":"-1"},{"p":"rh","r":"50","m":"-1"}]},{"ch":[{"p":"ll","r":n45,"m":"-1"},{"p":"lf","r":"25","m": "1"}]}]
+
+function dw(h, s)
+{
+h.beginPath()
+h.moveTo(10, 355)
+h.lineTo(710, 355)
+h.stroke()
+h.strokeStyle="black" 
+h.font="16pt sans-serif"
+h.fillText("Stick JS"  , 30, 80)
+h.strokeText("Stick JS", 30, 80)
+h.font="13pt sans-serif"
+h.fillText("Press 0 key."  , 30, 105)
+h.strokeStyle = "black"
+h.lineWidth   = 9
+h.lineCap     = "round"
+h.translate(360, 240)
+h.beginPath()
+h.moveTo(0,0)
+h.save()
+h.rotate(((s.ll) / 360) * (pi * 2))
+h.lineTo(0, 60)
+h.translate(0,60)
+h.rotate(((s.lf) / 360) * (pi * 2))
+h.lineTo(0,60)
+h.restore()
+h.save()
+h.moveTo(0,0)
+h.rotate(((s.rl) / 360) * (pi * 2))
+h.lineTo(0, 60)
+h.translate(0,60)
+h.rotate(((s.rf) / 360) * (pi * 2))
+h.lineTo(0,60)
+h.restore()
+h.moveTo(0,0)
+h.rotate(((s.nk) / 360) * (pi * 2))
+h.lineTo(0, -100)
+h.translate(0, -100)
+h.moveTo(20,-20)
+h.arc(0, -30, 30, 0, pi*2, true)
+h.moveTo(0,5)
+h.save()
+h.rotate(((s.ra) / 360) * (pi * 2))
+h.lineTo(0,60)
+h.translate(0,60)
+h.rotate(((s.rh) / 360) * (pi * 2))
+h.lineTo(0,45)
+h.restore()
+h.moveTo(0,5)
+h.rotate(((s.la) / 360) * (pi * 2))
+h.lineTo(0,60)
+h.translate(0,60)
+h.rotate(((s.lh) / 360) * (pi * 2))
+h.lineTo(0,45)
+h.restore()
+h.stroke()
+}
+
+function it()
+{
+	cv     = document.getElementById("ctx")
+	u()
+};
+
+function u()
+{
+	cv.width = cv.width
+	dw(cv.getContext("2d"), j)
+}
+
+document.onkeydown = function (e)
+		     {
+				if  ((window.event||e).keyCode==48)
+				{
+					j.la  = -30
+					j.ra =  30	
+					j.lh =  10
+					j.rh= -10
+					j.ll = -30
+					j.rl=  30
+					j.lf=  10
+					j.rf= -10
+					u()
+					rt(v,0,function(){rt(b,0,function(){rt(n,0,function(){rt(m,0,null)})})})
+				}
+		     }
+
+</script>
+</head>
+<body>
+
+	<canvas id="ctx" width="720" height="480" style="border:1px solid red;">Sorry, your browser doesn't support Canvas</canvas>
+
+	<script type="text/javascript">it()</script>
+</body>
+
+</html>

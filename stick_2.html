@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Stick Gym</title>
+
+<style type="text/css">
+body
+{
+	margin:0;
+	background-color:white;
+	/*text-align:center;*/
+	font-family:sans-serif;
+}
+</style>
+
+<script type="text/javascript">
+
+Object.prototype.clone = function()
+{
+  var newObj = (this instanceof Array) ? [] : {};
+  for (i in this) {
+    if (i == 'clone') continue;
+    if (this[i] && typeof this[i] == "object") {
+      newObj[i] = this[i].clone();
+    } else newObj[i] = this[i]
+  } return newObj;
+};
+
+var canvas;
+var start;
+var currentMan;
+var currentFrame = 0;
+var playing      = false;
+
+var json = 
+{
+	"frames": [
+		{
+			"hip":[360,240],
+			"neck":0,
+			"leftarm":-30,
+			"rightarm":30,
+			"lefthand":10,
+			"righthand":-10,
+			"leftleg":-30,
+			"rightleg":30,
+			"leftfoot":10,
+			"rightfoot":-10,
+			"second":0
+		}
+	]
+}
+
+function room(context)
+{
+      context.beginPath();
+      context.moveTo(10, 355);
+      context.lineTo(710, 355);
+      context.stroke();
+
+      context.strokeStyle="black";
+      var x = 30;
+      var y = 80;      
+
+      //Logo del gym		
+      context.font="16pt sans-serif";
+      context.fillText("Stick Gym"  , x, y);
+      context.strokeText("Stick Gym", x, y);
+
+      //Puntos	
+      context.font="13pt sans-serif";
+      context.fillText("100 points"  , x, y+25);
+
+      //nuevos
+      context.font="13pt arial";
+      context.fillText("-10", x, y+50);
+
+      //Movimientos
+      context.font="13pt sans-serif";
+      context.fillText("Movimientos: keys 1,2,3,4,5,6,7"  , x, 380);	
+}
+
+function draw(context, stickfigure)
+{
+	//Dibuja el gym
+	room(context);
+
+	context.strokeStyle = "black";
+	context.lineWidth   = 1;
+	context.lineCap     = "round";
+	
+	//Ubicacion.
+	context.translate(stickfigure.hip[0], stickfigure.hip[1]);
+
+	context.beginPath();
+
+	context.moveTo(0, 0);
+	context.save();
+
+
+	//pierna izq
+	context.rotate(((stickfigure.leftleg) / 360) * (Math.PI * 2));
+	context.lineTo(0, 60);
+	context.translate(0,60);
+
+	//pie izq
+	context.rotate(((stickfigure.leftfoot) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.restore();
+	context.save();
+
+
+
+	//Pierna der
+	context.moveTo(0,0);
+	context.rotate(((stickfigure.rightleg) / 360) * (Math.PI * 2));
+	context.lineTo(0, 60);
+	context.translate(0,60);
+
+	//pie der
+	context.rotate(((stickfigure.rightfoot) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.restore();
+	
+
+	//Espalda
+	context.moveTo(0,0);
+	context.rotate(((stickfigure.neck) / 360) * (Math.PI * 2));
+	context.lineTo(0, -100);
+	context.translate(0, -100);
+
+	//Cabeza
+	context.moveTo(20,-20);
+	context.arc(0, -20, 20, 0, Math.PI*2, true);
+
+	//Brazo derecho
+	context.moveTo(0,20);
+	context.save();
+	context.rotate(((stickfigure.rightarm) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.translate(0,60);
+
+	//mano derecha
+	context.rotate(((stickfigure.righthand) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.restore();
+
+	//Brazo izq
+	context.moveTo(0,20);
+	context.rotate(((stickfigure.leftarm) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+
+	//Mano izq
+	context.translate(0,60);
+	context.rotate(((stickfigure.lefthand) / 360) * (Math.PI * 2));
+	context.lineTo(0,60);
+	context.restore();
+	context.stroke();
+}
+
+function init()
+{
+	currentMan = json.frames[0].clone();
+	canvas     = document.getElementById("ctx");
+	updateAll();
+};
+
+function updateAll()
+{
+	canvas.width = canvas.width;
+	draw(canvas.getContext("2d"), json.frames[currentFrame]);
+}
+
+//Funcion que repite una accion un numero de veces, cada x intervalo de tiempo.
+function repetir_num_seg(num,time,fx,fx_over)
+{
+	var idtime = setInterval(function()
+		     {
+			fx();
+
+			num--;
+
+			if (num ==0) 
+			{
+			       clearInterval(idtime);
+
+				if (fx_over!=null)
+				fx_over();
+			}
+		     },time);
+}
+
+
+//Subir y bajar los brazos.
+function subir_brazos()
+{
+	stand();
+	repetir_num_seg(15,10,function()
+			      {
+				json.frames[currentFrame].rightarm = json.frames[currentFrame].rightarm +5;
+				json.frames[currentFrame].leftarm  = json.frames[currentFrame].leftarm  -5;
+				updateAll();
+
+				repetir_num_seg(8,10,function()
+					      {
+						json.frames[currentFrame].righthand = json.frames[currentFrame].righthand+1;
+						json.frames[currentFrame].lefthand  = json.frames[currentFrame].lefthand -1;
+						updateAll();
+					      },null);
+
+			      },
+			      function()
+			      {
+				bajar_brazos();
+			      });
+}
+
+function bajar_brazos()
+{
+	repetir_num_seg(15,10,function()
+			      {
+				json.frames[currentFrame].rightarm = json.frames[currentFrame].rightarm -5;
+				json.frames[currentFrame].leftarm  = json.frames[currentFrame].leftarm  +5;
+				updateAll();
+
+				repetir_num_seg(8,10,function()
+					      {
+						json.frames[currentFrame].righthand = json.frames[currentFrame].righthand-1;
+						json.frames[currentFrame].lefthand  = json.frames[currentFrame].lefthand +1;
+						updateAll();
+					      },null);
+
+			      },null);
+}
+
+//Subir y bajar brazo izq.
+function subir_brazo_izq()
+{
+	stand();
+
+	repetir_num_seg(6,10,function()
+			      {
+				json.frames[currentFrame].lefthand = json.frames[currentFrame].lefthand -5;
+				updateAll();
+
+				repetir_num_seg(2,10,function()
+						      {
+							json.frames[currentFrame].leftarm  = json.frames[currentFrame].leftarm -5;
+							updateAll();
+						      },null);
+			      },
+			      function()
+			      {
+				 repetir_num_seg(12,10,function()
+						      {
+							json.frames[currentFrame].leftarm  = json.frames[currentFrame].leftarm +5;
+							updateAll();
+						      },
+						      function()
+						      {
+							repetir_num_seg(6,10,function()
+									      {
+										json.frames[currentFrame].lefthand = json.frames[currentFrame].lefthand +5;
+										updateAll();
+										},null);
+						      });
+			      }
+			);
+}
+
+//Subir y bajar brazo izq.
+function subir_brazo_der()
+{
+	stand();
+
+	repetir_num_seg(6,10,function()
+			      {
+				json.frames[currentFrame].righthand = json.frames[currentFrame].righthand +5;
+				updateAll();
+
+				repetir_num_seg(2,10,function()
+						      {
+							json.frames[currentFrame].rightarm  = json.frames[currentFrame].rightarm +5;
+							updateAll();
+						      },null);
+			      },
+			      function()
+			      {
+				 repetir_num_seg(12,10,function()
+						      {
+							json.frames[currentFrame].rightarm  = json.frames[currentFrame].rightarm -5;
+							updateAll();
+						      },
+						      function()
+						      {
+							repetir_num_seg(6,10,function()
+									      {
+										json.frames[currentFrame].righthand = json.frames[currentFrame].righthand -5;
+										updateAll();
+										},null);
+						      });
+			      }
+			);
+}
+
+//Inclinar el torso a la derecha.
+function inclinar_der()
+{
+	//stand();
+	json.frames[currentFrame].lefthand   = -12;
+	json.frames[currentFrame].righthand  = -100;
+
+	repetir_num_seg(14,10,function()
+			      {
+				json.frames[currentFrame].neck = json.frames[currentFrame].neck +5;
+				updateAll();
+			      },
+			      function()
+			      {
+				repetir_num_seg(14,10,function()
+						     {
+							json.frames[currentFrame].neck = json.frames[currentFrame].neck -5;
+							updateAll();
+						     },function(){stand();});
+			      }
+			);
+}
+
+
+//Inclinar el torso a la izquierda.
+function inclinar_izq()
+{
+	//stand();
+	json.frames[currentFrame].righthand = 12;
+	json.frames[currentFrame].lefthand  = 100;
+
+	repetir_num_seg(14,10,function()
+			      {
+				json.frames[currentFrame].neck = json.frames[currentFrame].neck -5;
+				updateAll();
+			      },
+			      function()
+			      {
+				repetir_num_seg(14,10,function()
+						     {
+							json.frames[currentFrame].neck = json.frames[currentFrame].neck +5;
+							updateAll();
+						     },function(){stand();});
+			      }
+			);
+}
+
+//Rodillazo pierna izq
+function rodilla_izq()
+{
+	stand();
+
+	json.frames[currentFrame].lefthand =  -90;
+
+	repetir_num_seg(18,10,function()
+			      {
+				json.frames[currentFrame].leftleg = json.frames[currentFrame].leftleg -5;
+				updateAll();
+
+				repetir_num_seg(2,10,function()
+			        {
+					 json.frames[currentFrame].leftfoot = json.frames[currentFrame].leftfoot +3;
+					 updateAll();
+			        },null);
+			      },
+			      function()
+			      {
+					repetir_num_seg(18,10,function()
+					{
+						 json.frames[currentFrame].leftleg = json.frames[currentFrame].leftleg +5;
+						 updateAll();
+
+						repetir_num_seg(2,10,function()
+					        {
+							 json.frames[currentFrame].leftfoot = json.frames[currentFrame].leftfoot -3;
+							 updateAll();
+					        },null);
+					},function(){stand();});
+			      }
+			);
+}
+
+//Rodillazo pierna der
+function rodilla_der()
+{
+	stand();
+
+	json.frames[currentFrame].righthand =  90;
+
+	repetir_num_seg(18,10,function()
+			      {
+				json.frames[currentFrame].rightleg = json.frames[currentFrame].rightleg +5;
+				updateAll();
+
+				repetir_num_seg(2,10,function()
+			        {
+					 json.frames[currentFrame].rightfoot = json.frames[currentFrame].rightfoot -3;
+					 updateAll();
+			        },null);
+			      },
+			      function()
+			      {
+					repetir_num_seg(18,10,function()
+					{
+						 json.frames[currentFrame].rightleg = json.frames[currentFrame].rightleg -5;
+						 updateAll();
+
+						repetir_num_seg(2,10,function()
+					        {
+							 json.frames[currentFrame].rightfoot = json.frames[currentFrame].rightfoot +3;
+							 updateAll();
+					        },null);
+					},function(){stand();});
+			      }
+			);
+}
+
+
+function caminar()
+{
+	stand();
+
+	json.frames[currentFrame].righthand =  -90;
+	json.frames[currentFrame].lefthand  = -60;
+
+	repetir_num_seg(20,10,function()
+			      {
+				json.frames[currentFrame].rightarm = json.frames[currentFrame].rightarm -5;
+				json.frames[currentFrame].leftarm  = json.frames[currentFrame].leftarm  +5;
+				updateAll();
+			      },
+			      function()
+			      {
+				    repetir_num_seg(20,10,function()
+				    {
+					json.frames[currentFrame].rightarm = json.frames[currentFrame].rightarm +5;
+					json.frames[currentFrame].leftarm  = json.frames[currentFrame].leftarm  -5;
+					updateAll();
+				    },null);
+			      }
+			);
+
+}
+
+function stand()
+{
+	json.frames[currentFrame].leftarm  = -30;
+	json.frames[currentFrame].rightarm =  30;	
+	json.frames[currentFrame].lefthand =  10;
+	json.frames[currentFrame].righthand= -10;
+	updateAll();
+}
+
+document.onkeydown = function (event)
+		     {
+			var keycode = (window.event||event).keyCode;
+
+			//alert(keycode);
+
+			switch(keycode)
+			{
+				case 49: case 97: subir_brazos();
+				break;
+				case 50: case 98: subir_brazo_izq();
+				break;
+				case 51: case 99: subir_brazo_der();
+				break;
+				case 52: case 100: inclinar_der();
+				break;
+				case 53: case 101: inclinar_izq();
+				break;
+				case 54: case 102: rodilla_izq();
+				break;
+				case 55: case 103: rodilla_der();
+				break;
+			}
+		     }
+
+</script>
+</head>
+<body>
+
+	<canvas id="ctx" width="720" height="480" style="border:1px solid red;">Sorry, your browser doesn't support Canvas</canvas>
+
+	<script type="text/javascript">init()</script>
+
+</body>
+
+</html>

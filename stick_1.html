@@ -1,0 +1,142 @@
+
+<!doctype html>
+<html>
+	<head>
+		<title>JS1k, 1k demo submission [ID]</title>
+		<meta carset="utf-8" />
+	</head>
+	<body>
+		<canvas id="c"></canvas>
+		<script>
+			var b = document.body;
+			var c = document.getElementsByTagName('canvas')[0];
+			var a = c.getContext('2d');
+			document.body.clientWidth; // fix bug in webkit: http://qfox.nl/weblog/218
+		</script>
+		<script>
+
+var x8="rf",x7="rl",x6="rh",x5="ra",x4="lf",x3="ll",x2="lh",x1="la",g=1,f="25",y="sans-serif",tt="Stick JS",v,z,n,m,cv,cf,w = 0,k=30,e=60,r=360,d=10,q="45",j = {"la":-k,"ra":k,"lh":d,"rh":-d,"ll":-k,"rl":k,"lf":d,"rf":-d},l=(Math.PI * 2)
+
+function rn(n,t,f)
+{
+	var i = setInterval(function(){f();n--;if (n<1) clearInterval(i)},t)
+}
+
+
+function ct(p,v,f)
+{
+	v = -(v *f)
+	if (p==x1) j.la  += v
+	if (p==x2) j.lh  += v
+	if (p==x3) j.ll  += v
+	if (p==x4) j.lf  += v
+	if (p==x5) j.ra  += (-v)
+	if (p==x6) j.rh  += (-v)
+	if (p==x7) j.rl  += (-v)
+	if (p==x8) j.rf  += (-v)
+	u()
+}
+
+
+function rt(a,t,e)
+{
+	for (var i=0; i<a.length; i++)
+	if (typeof a[i].c=="undefined")
+	{
+		w +=(parseInt(a[i].r) *3);
+		(function(c){rn(c.r,8,function(){ct(c.p,c.m,2)})})(a[i])
+	}
+	else rt(a[i].c,1,null)
+
+	if (t<1)
+	{
+		setTimeout(e,w)
+		w = 0
+	}
+}
+
+v = [{"c":[{"p":x1,"r":q,"m": g},{"p":x2,"r":q,"m": g}]},{"c":[{"p":x7,"r":q,"m":g}, {"p":x8,"r":f,"m": -g}]}]
+z = [{"c":[{"p":x1,"r":q,"m":-g},{"p":x2,"r":q,"m":-g}]},{"c":[{"p":x7,"r":q,"m":-g},{"p":x8,"r":f,"m": g}]}]
+n = [{"c":[{"p":x5,"r":"55","m": g},{"p":x6,"r":q,"m": g}]},{"c":[{"p":x3,"r":q,"m":g}, {"p":x4,"r":f,"m":-g}]}]
+m = [{"c":[{"p":x5,"r":"55","m":-g},{"p":x6,"r":"50","m":-g}]},{"c":[{"p":x3,"r":q,"m":-g},{"p":x4,"r":f,"m": g}]}]
+
+function dw(h, s)
+{
+for(Z in h)h[Z[0]+(Z[6]||Z[2])]=h[Z]
+h.ba
+h.mv(d, 355)
+h.ln(710, 355)
+h.sr()
+h.st="black" 
+h.font="16pt "+y
+h.fx(tt, k, 80)
+h.sT(tt, k, 80)
+h.fo="13pt "+y
+h.fx("Press 0 key."  , k, 105)
+h.lineWidth   = 9
+h.lineCap     = "round"
+h.ta(r, 240)
+h.ba()
+h.mv(0,0)
+h.sv()
+h.rt(((s.ll) / r) * l)
+h.ln(0, e)
+h.ta(0,e)
+h.rt(((s.lf) / r) * l)
+h.ln(0,e)
+h.re()
+h.sv()
+h.mv(0,0)
+h.rt(((s.rl) / r) * l)
+h.ln(0, e)
+h.ta(0,e)
+h.rt(((s.rf) / r) * l)
+h.ln(0,e)
+h.re()
+h.mv(0,0)
+h.rt(((s.nk) / r) * l)
+h.ln(0, -100)
+h.ta(0, -100)
+h.mv(20,-20)
+h.ac(0, -k, k, 0, l, !0)
+h.mv(0,5)
+h.sv()
+h.rt(((s.ra) / r) * l)
+h.ln(0,e)
+h.ta(0,e)
+h.rt(((s.rh) / r) * l)
+h.ln(0,q)
+h.re()
+h.mv(0,5)
+h.rt(((s.la) / r) * l)
+h.ln(0,e)
+h.ta(0,e)
+h.rt(((s.lh) / r) * l)
+h.ln(0,q)
+h.re()
+h.sr()
+}
+
+function it()
+{
+	c.width =720
+	c.height=480
+	u()
+}
+
+function u()
+{
+	c.width = c.width
+	dw(a, j)
+}
+
+it()
+		
+document.onkeydown = function (e)
+		     {
+				if  ((window.event||e).keyCode==48)
+				rt(v,0,function(){rt(z,0,function(){rt(n,0,function(){rt(m,0,null)})})})				
+		     }
+		</script>
+	</body>
+</html>
